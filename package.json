@@ -1,0 +1,32 @@
+{
+  "name": "thermoeye-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "a11y": "node scripts/a11y-flow.mjs",
+    "api": "node scripts/api-flow.mjs",
+    "smoke": "node scripts/smoke-flow.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^16.2.6",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.21",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
+    "axe-core": "^4.11.4",
+    "eslint": "9.27.0",
+    "eslint-config-next": "^16.2.6",
+    "typescript": "5.8.3"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
+  }
+}

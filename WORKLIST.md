@@ -1,0 +1,284 @@
+# Thermoeye Worklist
+
+ใช้ไฟล์นี้เป็นรายการสถานะงานหลักของโปรเจกต์ Thermoeye เพื่อให้เห็นว่าเราทำอะไรไปแล้ว อะไรยังไม่ทำ และติดอะไรอยู่
+
+## ทำแล้ว
+
+- อ่านไฟล์เอกสารใน `/home/uzismas/codex/project/teng1`
+- เข้าใจภาพรวมผลิตภัณฑ์: Thermoeye เป็นเว็บ clinical screening workflow สำหรับคัดกรองความเสี่ยง Alzheimer’s จากภาพ OCTA/OCT
+- ยืนยันแนวทางว่าเป็นเว็บ ไม่ใช่ native/mobile app
+- บันทึก design context ไว้ใน `.impeccable.md`
+- สร้าง prototype เว็บ static รอบแรกในโฟลเดอร์ `web/`
+- ทำหน้าหลักของ prototype:
+  - Dashboard
+  - Case queue
+  - Case risk review
+  - Secure upload/intake
+  - Consent และ quality gate
+  - Explainable analysis
+  - Insights
+  - Model performance
+  - Governance และ audit log
+- เพิ่ม interaction พื้นฐานด้วย `web/app.js`
+- ตรวจ JavaScript ด้วย `node --check web/app.js`
+- ตรวจ layout ด้วย Chrome headless ทั้ง desktop และ mobile
+- สร้าง screenshot ตรวจงาน:
+  - `web/thermoeye-desktop.png`
+  - `web/thermoeye-mobile.png`
+- เลือกทิศทางถัดไป: แปลง prototype เป็นเว็บจริงด้วย Next.js + React + TypeScript
+- สร้างโครง Next.js App Router ที่ root ของโปรเจกต์
+- เพิ่มไฟล์ config หลัก:
+  - `package.json`
+  - `package-lock.json`
+  - `next.config.ts`
+  - `tsconfig.json`
+  - `app/layout.tsx`
+  - `app/page.tsx`
+  - `app/globals.css`
+- แยก feature หลักไว้ที่ `features/clinical-console/`
+- แยก mock data และ type ออกจาก component:
+  - `features/clinical-console/mock-data.ts`
+  - `features/clinical-console/types.ts`
+- ย้าย prototype UI เป็น React client component:
+  - `features/clinical-console/ThermoeyeConsole.tsx`
+- เพิ่ม interaction ใน React:
+  - เปลี่ยน view ผ่าน sidebar
+  - เลือก case ใน queue
+  - approve report
+  - request rescan
+  - queue secure upload
+  - append audit event
+- ติดตั้ง dependencies ของเว็บจริง
+- อัปเกรด Next.js เป็น `16.2.6`
+- แก้ audit warning ของ `postcss` ด้วย `overrides` เป็น `postcss@8.5.15`
+- ตรวจ `npm audit` แล้วพบ `0 vulnerabilities`
+- ตรวจ TypeScript ด้วย `npm run typecheck`
+- ตรวจ production build ด้วย `npm run build`
+- แยก `ThermoeyeConsole.tsx` จากไฟล์ใหญ่เป็น component ย่อยตาม feature
+- ลด `features/clinical-console/ThermoeyeConsole.tsx` จาก 784 บรรทัดเหลือ orchestration หลักประมาณ 103 บรรทัด
+- เพิ่ม component folder:
+  - `features/clinical-console/components/console-layout.tsx`
+  - `features/clinical-console/components/dashboard-view.tsx`
+  - `features/clinical-console/components/cases-view.tsx`
+  - `features/clinical-console/components/analysis-view.tsx`
+  - `features/clinical-console/components/insights-view.tsx`
+  - `features/clinical-console/components/performance-view.tsx`
+  - `features/clinical-console/components/governance-view.tsx`
+  - `features/clinical-console/components/report-view.tsx`
+  - `features/clinical-console/components/scan-visuals.tsx`
+  - `features/clinical-console/components/shared.tsx`
+- เพิ่ม `features/clinical-console/utils.ts` สำหรับ risk tone, meter color, และ helper text
+- เพิ่ม report preview/download mock flow:
+  - ปุ่ม `Preview report` ใน selected case
+  - หน้า `Clinical report preview`
+  - report summary, scan preview, interpretation, release controls
+  - ปุ่ม `Download PDF mock` ที่ unlock เมื่อสถานะเป็น `Doctor approved`
+  - audit event เมื่อเปิด preview หรือ download mock
+- เพิ่ม style สำหรับ report preview และ disabled action state
+- ตรวจซ้ำหลัง refactor:
+  - `npm run typecheck` ผ่าน
+  - `npm run build` ผ่าน
+  - `npm audit` พบ `0 vulnerabilities`
+- เพิ่ม auth/login mock flow:
+  - หน้า sign in ก่อนเข้า clinical console
+  - mock clinical user: doctor role, hospital context
+  - sign in/sign out action
+  - audit event เมื่อ sign in/sign out
+- เพิ่ม doctor review workflow ที่สมบูรณ์ขึ้น:
+  - decision: Pending review, Approved for release, Follow-up required, Rescan requested
+  - follow-up window: Routine, 30 days, 90 days, Rescan first
+  - clinical note field
+  - reviewer และ updated timestamp
+  - report download unlock เฉพาะเมื่อ decision เป็น `Approved for release`
+- ปรับ report preview ให้ใช้ข้อมูล review แบบ structured:
+  - doctor decision
+  - reviewer
+  - follow-up window
+  - updated timestamp
+  - doctor note
+- เพิ่มไฟล์ `MVP_BACKEND_PLAN.md` สำหรับแผน backend/API Phase 1:
+  - auth/session
+  - hospital-scoped cases
+  - upload/quarantine
+  - quality check worker
+  - mock AI analysis worker
+  - doctor review API
+  - report preview/release/download
+  - audit log
+  - security boundaries
+  - minimal data model
+- เพิ่ม automated smoke test:
+  - script: `scripts/smoke-flow.mjs`
+  - npm script: `npm run smoke`
+  - ทดสอบ flow จริงผ่าน Chrome headless/CDP: login -> doctor review -> report preview -> download mock -> audit log
+  - สร้าง screenshot ที่ `output/playwright/thermoeye-smoke.png`
+- ตรวจซ้ำหลังเพิ่ม login/review/backend plan/smoke test:
+  - `npm run typecheck` ผ่าน
+  - `npm run build` ผ่าน
+  - `npm audit` พบ `0 vulnerabilities`
+  - `npm run smoke` ผ่าน
+- เพิ่ม lint quality gate สำหรับ Next.js 16 / ESLint 9:
+  - เพิ่ม `eslint.config.mjs`
+  - แก้ npm script `npm run lint` ให้ใช้ `eslint .`
+  - แก้ ARIA warning ใน sidebar navigation จาก `aria-selected` เป็น `aria-current`
+- เพิ่ม automated accessibility smoke test:
+  - script: `scripts/a11y-flow.mjs`
+  - npm script: `npm run a11y`
+  - เพิ่ม `axe-core` เป็น devDependency โดยตรง
+  - ใช้ Chrome headless/CDP + `axe-core`
+  - ตรวจ flow: login, dashboard, case intake, report preview, governance, mobile governance
+- แก้ accessibility issues ที่ `axe-core` ตรวจพบ:
+  - เปลี่ยน case queue จาก `div role="table"` เป็น semantic `<table>`
+  - เพิ่ม hidden caption สำหรับ screen reader
+  - ปรับสี badge/input ให้ contrast robust ขึ้น
+  - เปลี่ยน report actions จาก nested `<aside>` เป็น `<section>` เพื่อไม่ให้ landmark ซ้อนผิดระดับ
+  - ปิด motion ระหว่าง a11y test ด้วย `prefers-reduced-motion: reduce`
+- ตรวจซ้ำหลัง lint/a11y pass:
+  - `npm run lint` ผ่าน
+  - `npm run typecheck` ผ่าน
+  - `npm run build` ผ่าน
+  - `npm run a11y` ผ่าน
+  - `npm audit` พบ `0 vulnerabilities`
+  - `npm run smoke` ผ่าน
+- เพิ่ม production-style console routing:
+  - หน้า `/` redirect ไป `/console/dashboard`
+  - เพิ่ม route `/console/[[...view]]` สำหรับ `dashboard`, `cases`, `analysis`, `insights`, `performance`, `governance`, และ `report`
+  - เพิ่ม persistent `/console` layout เพื่อให้ mock login/review/audit state ไม่หายตอนเปลี่ยน route
+  - เปลี่ยน sidebar เป็น `next/link` พร้อม URL จริง เช่น `/console/cases`
+  - ปรับ smoke/a11y scripts ให้เริ่มที่ `/console/dashboard` และกดได้ทั้งปุ่มกับลิงก์
+- ตรวจซ้ำหลังเพิ่ม routing:
+  - `npm run lint` ผ่าน
+  - `npm run typecheck` ผ่าน
+  - `npm run build` ผ่าน
+  - `npm run a11y` ผ่าน
+  - `npm audit` พบ `0 vulnerabilities`
+  - `npm run smoke` ผ่าน
+- ปรับ UI ให้ใกล้ต้นแบบใน `/home/uzismas/codex/project/teng1/ต้นแบบ ui`:
+  - เปลี่ยน sidebar เป็น dark navy พร้อม active state สีม่วงน้ำเงิน
+  - ปรับ topbar เป็น hospital selector, notification, doctor avatar ตามต้นแบบ
+  - ทำ Dashboard ใหม่ให้มี metric cards, recent analyses, upload shortcut, risk donut, AI insight และ doctor review workflow
+  - ทำ Analysis Result ใหม่ให้มี patient overview, AI risk gauge, key metrics, OCTA panels, provenance/privacy/quality/actions
+  - ทำ Data Insights ใหม่ให้มี filters, metric cards, stacked risk chart, donut, age bars, hospital table, scan type donut และ contributing factors
+  - ทำ Model Performance ใหม่ให้มี filters, 6 metric cards, ROC, confusion matrix, calibration, trend, drift, feature importance และ model info
+  - ทำ Data Management ใหม่ให้มี tabs, data overview donut, data quality, growth chart, ingestion table, de-identification flow, training/usage/storage และ audit log
+  - เพิ่มเมนู Patients และ Settings ให้ sidebar เหมือนต้นแบบ พร้อม route/page ที่ใช้งานได้จริง
+- ปรับ smoke/a11y scripts ให้ตรงกับ copy และเมนูใหม่
+- แก้ accessibility หลัง redesign:
+  - เพิ่ม semantic `<h1>` ต่อหน้า
+  - แก้ heading order ใน panel/report/review
+  - ปรับ contrast ของ trend/table/risk chip ให้ผ่าน WCAG
+- ตรวจซ้ำหลัง redesign:
+  - `npm run lint` ผ่าน
+  - `npm run typecheck` ผ่าน
+  - `npm run build` ผ่าน
+  - `npm run a11y` ผ่าน
+  - `npm audit` พบ `0 vulnerabilities`
+  - `npm run smoke` ผ่าน
+- ทำ final polish ต่อจาก screenshot รอบก่อน:
+  - แก้ metric cards แบบไม่มีไอคอนใน Data Insights และ Model Performance ไม่ให้ตัวเลขโดนตัดในกริด 5-6 คอลัมน์
+  - คง layout เดิมของ dashboard metric cards ที่มีไอคอนด้วย CSS `:has(.metric-icon)`
+  - ปรับ `scripts/capture-ui-screens.mjs` ให้รอ React hydration ก่อนกด login ระหว่างจับภาพ production build
+  - ปรับ `scripts/a11y-flow.mjs` ให้รอโหลดหน้าแบบทนต่อ timing และรอ hydration ก่อน submit login
+  - จับภาพ production build ล่าสุดครบ 5 หน้า:
+    - `output/playwright/thermoeye-dashboard.png`
+    - `output/playwright/thermoeye-analysis.png`
+    - `output/playwright/thermoeye-insights.png`
+    - `output/playwright/thermoeye-performance.png`
+    - `output/playwright/thermoeye-data-management.png`
+- ตรวจซ้ำหลัง final polish:
+  - `npm run lint` ผ่าน
+  - `npm run typecheck` ผ่าน
+  - `npm run build` ผ่าน
+  - `npm run smoke` ผ่าน
+  - `npm run a11y` ผ่าน
+- เพิ่ม Next.js MVP API surface เพื่อลดการติด mock frontend ล้วน:
+  - `GET /api/console-state` สำหรับโหลด cases, reviews, audit events
+  - `POST/DELETE /api/session` สำหรับ mock clinical sign in/sign out
+  - `POST /api/cases/[caseId]/review` พร้อม validation และ guard ห้าม approve case ที่ quality blocked
+  - `GET /api/cases/[caseId]/report/preview`
+  - `POST /api/cases/[caseId]/report/download` พร้อม guard ต้อง doctor approved ก่อน
+  - `POST /api/uploads/queue` สำหรับ upload queue/audit mock
+  - `POST /api/audit` สำหรับ append audit event
+- ปรับ React console ให้เรียก API สำหรับ login, review, upload queue, report preview/download และ audit export แทนการอัปเดต mock state ตรง ๆ
+- เพิ่ม error state ใน UI สำหรับ API validation/guard failure
+- ตรวจซ้ำหลังเพิ่ม MVP API:
+  - `npm run lint` ผ่าน
+  - `npm run typecheck` ผ่าน
+  - `npm run build` ผ่าน
+  - `npm run smoke` ผ่าน
+  - `npm run a11y` ผ่าน
+- เพิ่ม real-upload demo baseline สำหรับ presentation วันนี้:
+  - หน้า Case intake รับไฟล์รูปจริงผ่าน browser file input
+  - วิเคราะห์ภาพใน browser ด้วย canvas เพื่อคำนวณ brightness, contrast, sharpness, vessel density proxy, quality score, confidence และ risk score
+  - สร้าง case ใหม่จากไฟล์ upload แล้วพาไปหน้า Analysis อัตโนมัติ
+  - หน้า Analysis แสดงภาพที่อัปโหลดจริง พร้อม demo segmentation, density map และ heatmap overlay
+  - อัปโหลดเคสเข้า MVP API state เพื่อให้ doctor review, report preview และ report download mock ทำงานต่อได้ครบ flow
+  - ปรับ smoke test ให้ทดสอบ upload synthetic OCTA image -> analysis -> doctor review -> report -> audit
+- ตรวจซ้ำหลังเพิ่ม real-upload demo baseline:
+  - `npm run lint` ผ่าน
+  - `npm run typecheck` ผ่าน
+  - `npm run build` ผ่าน
+  - `npm run smoke` ผ่าน
+  - `npm run a11y` ผ่าน
+  - `npm audit` พบ `0 vulnerabilities`
+- เพิ่ม Research Evidence Board ในหน้า Data Insights:
+  - ใส่ลิงก์งานวิจัย/แหล่งอ้างอิงที่ผู้ใช้ให้มา ได้แก่ ResearchGate figures, Dementia Australia PDF, Duke Eye Center article และ PubMed Central article
+  - แสดงเป็น external source cards พร้อม summary, source type, source name และปุ่มเปิดแหล่งอ้างอิง
+  - ไม่ copy รูป ResearchGate เข้า repo เพราะหน้าแหล่งที่มาระบุว่า content อาจมี copyright ต้องตรวจสิทธิ์ก่อน embed/copy
+  - เพิ่ม note ว่า demo เป็น clinical decision support/research-grounded workflow แต่ยังต้อง validation ก่อนใช้จริง
+- ตรวจซ้ำหลังเพิ่ม Research Evidence Board:
+  - `npm run lint` ผ่าน
+  - `npm run typecheck` ผ่าน
+  - `npm run build` ผ่าน
+  - `npm run smoke` ผ่าน
+  - `npm run a11y` ผ่าน
+  - `npm audit` พบ `0 vulnerabilities`
+- ปรับหน้า Analysis และ Dashboard ให้สอดคล้องกับภาพ/ข้อมูลอ้างอิงงานวิจัย:
+  - เพิ่ม research-style OCTA comparison ในหน้า Analysis: Control, MCI, AD
+  - เพิ่ม visual panels สำหรับ vessel density, perfusion density และ FAZ enlargement/capillary dropout
+  - แยก current case image pipeline ไว้ด้านล่าง เพื่อยังรองรับ upload รูปจริงและ overlay demo ได้
+  - เพิ่ม source links ใต้ภาพ research-style ไปยัง ResearchGate, Dementia Australia, Duke Eye Center และ PubMed Central
+  - ปรับ Dashboard headline/metrics ให้พูดเรื่อง OCTA retinal biomarkers, vessel density, perfusion density และ FAZ alerts มากขึ้น
+  - ใช้ SVG ที่สร้างเองแทนการ copy รูปจาก ResearchGate เพื่อเลี่ยงปัญหาสิทธิ์ภาพ
+- ตรวจซ้ำหลังปรับ Analysis/Dashboard research style:
+  - `npm run lint` ผ่าน
+  - `npm run typecheck` ผ่าน
+  - `npm run build` ผ่าน
+  - `npm run smoke` ผ่าน
+  - `npm run a11y` ผ่าน
+  - `npm audit` พบ `0 vulnerabilities`
+- ทดสอบทั้งเว็บและแก้ issue ที่เจอจาก browser health check:
+  - เพิ่ม `scripts/ui-health-flow.mjs` สำหรับ login แล้วตรวจ console pages 9 หน้าใน desktop/mobile
+  - ตรวจ horizontal overflow, touch target เล็กเกิน และ nowrap text overflow โดยใช้ headless Chrome/CDP
+  - แก้ mobile overflow หน้า Analysis จาก research-style OCTA grid ที่ยังไม่ collapse เป็น 1 คอลัมน์
+  - เพิ่ม touch target ให้ Help, case select buttons, research source links, evidence links และ Data Management tabs
+  - ปรับ hidden file input ใน dropzone ไม่ให้มีขนาด visual control หลุดจาก intended hidden state
+  - regenerate screenshots ใน `output/playwright/`
+- ตรวจซ้ำหลัง whole-site browser health fix:
+  - `npm run typecheck` ผ่าน
+  - `npm run lint` ผ่าน
+  - `npm run build` ผ่าน
+  - `npm run smoke` ผ่าน
+  - `npm run a11y` ผ่าน
+  - `node scripts/ui-health-flow.mjs` ผ่าน
+  - `npm audit` พบ `0 vulnerabilities`
+
+## กำลังทำ
+
+- ยังไม่มีงานที่กำลังทำค้างอยู่
+
+## ยังไม่ทำ
+
+- ทำ manual accessibility review แบบละเอียดเพิ่มเติม เช่น screen reader, keyboard-only walkthrough, และ zoom/text scaling
+- ต่อ backend production จริงตาม `MVP_BACKEND_PLAN.md` เช่น database persistence, secure session cookie, object storage, worker queue, และ tenant authorization จริง
+
+## ติดอยู่
+
+- ยังไม่มี blocker ตอนนี้
+
+## กติกาการทำงานต่อจากนี้
+
+- ทุกครั้งที่เริ่มงาน ให้สรุป checklist ก่อน
+- ระหว่างทำงาน ให้บอกว่างานไหนกำลังทำ
+- ถ้าติด ให้ระบุ blocker ชัดเจน
+- เมื่อจบงาน ให้สรุปว่าแก้ไฟล์ไหน ตรวจอะไรแล้ว และเหลืออะไรต่อ
